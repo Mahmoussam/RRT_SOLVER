@@ -1,11 +1,17 @@
 
-#define TEST_WRITE
+#ifndef CSV_UTILS_CPP
+#define CSV_UTILS_CPP
+//#define TEST_READ
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
+
+
+
+
 /**
  * CSV Reader class
 */
@@ -25,6 +31,14 @@ public:
 
         std::string line;
         while (std::getline(file, line)) {
+            bool is_comment = false;
+            for(auto c : line){
+                if(c == '#'){
+                    is_comment = true;
+                    break;
+                }
+            }
+            if(is_comment)continue;
             std::vector<std::string> row = parseLine(line);
             data.push_back(row);
         }
@@ -91,7 +105,7 @@ private:
 #ifdef TEST_WRITE
 // Example usage
 int main() {
-    CSVWriter writer("output.csv");
+    CSVWriter writer("data.csv");
     writer.addRow({"Name", "Age", "Country"});
     writer.addRow({"Alice", "30", "USA"});
     writer.addRow({"Bob", "25", "Canada"});
@@ -119,4 +133,6 @@ int main() {
 
     return 0;
 }
+#endif
+
 #endif

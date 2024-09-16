@@ -1,5 +1,5 @@
 #include "graph_types.h"
-
+//#include <iostream>
 CircleObstacle::CircleObstacle(double x, double y, double radius)
     : x(x), y(y), radius(radius) {}
 
@@ -10,40 +10,24 @@ double CircleObstacle::getRadius() const { return radius; }
 
 // Intersects method
 bool CircleObstacle::intersects(const Node& node1, const Node& node2) const {
-    // Circle center and radius
-    double cx = x;
-    double cy = y;
+    //use node 1 as reference..
+    GVector vc(x - node1.x , y - node1.y)
+        ,vn(node2.x - node1.x ,  node2.y - node1.y);
+        double t = (vc * vn) / (vn * vn);
+        t = std::max(0.0 , t);
+        t = std::min(1.0 , t);
+        double new_x = node1.x + t * vn.x
+            , new_y = node1.y + t * vn.y;
+        //std::cout<<new_x<<", "<<new_y<<std::endl;
+        return (new_x - x) * (new_x - x) + (new_y - y) * (new_y - y) - radius * radius <= EPS;
+}
+bool CircleObstacle::contains_node(const Node& node)const{
+    return dist_2(Node(x,y) , node) <= radius * radius;
+}
 
-    // Coordinates of the line segment's endpoints
-    double x1 = node1.x;
-    double y1 = node1.y;
-    double x2 = node2.x;
-    double y2 = node2.y;
-
-    // Vector from node1 to node2
-    double dx = x2 - x1;
-    double dy = y2 - y1;
-
-    // Vector from node1 to the circle center
-    double fx = cx - x1;
-    double fy = cy - y1;
-
-    // Projection of the circle center onto the line segment
-    double a = dx * dx + dy * dy;
-    double b = 2 * (fx * dx + fy * dy);
-    double t = -b / (2 * a);
-
-    // Clamp t to the closest point on the segment
-    if (t < 0.0) t = 0.0;
-    if (t > 1.0) t = 1.0;
-
-    // Find the closest point on the segment to the circle center
-    double closestX = x1 + t * dx;
-    double closestY = y1 + t * dy;
-
-    // Distance from the closest point to the circle center
-    double distanceSquared = (closestX - cx) * (closestX - cx) + (closestY - cy) * (closestY - cy);
-
-    // Check if the distance is less than or equal to the circle's radius
-    return distanceSquared - radius * radius <= EPS;
+double dist_2(Node n1 , Node n2){
+    return (n1.x - n2.x) * (n1.x - n2.x) + (n1.y - n2.y) * (n1.y - n2.y);
+}
+double dist(Node n1 , Node n2){
+    return std::sqrt(dist_2(n1 , n2));
 }
