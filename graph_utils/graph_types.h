@@ -26,6 +26,10 @@ struct GVector{
     double get_magnitude(){
         return sqrt(x * x + y * y);
     }
+    void divide_by(double z){
+        x /= z;
+        y /= z;
+    }
 };
 /**
  * graph (tree) node 
@@ -99,8 +103,15 @@ public:
     std::pair<double , double> getDim(int dim_idx){
         return dimensions[dim_idx];
     }
-    
+    bool is_node_inside(Node node){
+        return true;
+        double x = node.getX() , y = node.getY();
+        return x<=dimensions[0].second &&dimensions[0].first <= x && dimensions[1].first <= y && y <= dimensions[1].second;
+    }
     bool is_line_clear(Node n1 , Node n2){
+        
+        if(!is_node_inside(n1))return false;
+        if(!is_node_inside(n2))return false;
         bool clear = true;
         for(auto obs : obstacles){
             if(obs.intersects(n1,n2)){

@@ -23,7 +23,10 @@ void write_path_file(vector<Node> path){
     writer.addRow(row);
     writer.writeCSV();
 }
+
 int main(){
+
+
     CSVReader obstacles_reader("task1/obstacles.csv") , nodes_reader("task1/in_nodes.csv");
     vector<vector<string>> obestacles_raw = obstacles_reader.readCSV() , nodes_raw = nodes_reader.readCSV();
     vector<CircleObstacle> obstacles;
@@ -31,9 +34,10 @@ int main(){
     
     build_obstacles(obstacles, obestacles_raw);
     build_nodes(nodes , nodes_raw);
+    
     GSpace space(obstacles);
     //cout<<space.is_line_clear(nodes[0] , Node(-.5,-.4923132))<< " ?"<<endl;;
-    RRT solver(nodes[0], nodes[1] , space);
+    RRT solver(nodes[0], nodes[1] , space , 0.1 , 1e3 , 0.2);
     auto res = solver.findPath(nodes);
     
     cout<<"Path size : "<<res.size()<<endl; 
