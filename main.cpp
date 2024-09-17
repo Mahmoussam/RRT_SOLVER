@@ -32,7 +32,6 @@ int main(){
     build_obstacles(obstacles, obestacles_raw);
     build_nodes(nodes , nodes_raw);
     GSpace space(obstacles);
-    //cout<<space.is_line_clear(nodes[0] , Node(-.5,-.4923132))<< " ?"<<endl;;
     RRT solver(nodes[0], nodes[1] , space);
     auto res = solver.findPath(nodes);
     

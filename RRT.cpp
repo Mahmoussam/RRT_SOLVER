@@ -15,14 +15,15 @@
 using namespace std;
 
 double randomDouble(double X, double Y) {
+    random_device random_device;
     // Use current time as seed for the random number generator
-    static std::mt19937 gen(static_cast<unsigned int>(std::time(0))); 
+    static std::mt19937 engine{random_device()};
     // Uniformly distributed in range [X, Y]
     std::uniform_real_distribution<> dis(X, Y);
     
     // Generate random number and round to 2 decimal places
-    double randomValue = dis(gen);
-    return std::round(randomValue * 100.0) / 100.0;
+    double randomValue = dis(engine);
+    return randomValue;
 }
 class RRT {
 private:
@@ -31,9 +32,10 @@ private:
 	Node* goal;
 	double step_size;
 	double number_of_iterations;
+    double goal_bias = 0.5;
 	GSpace map;
 public:
-	RRT(Node* start, Node* goal,GSpace &map, double step_size = 0.1, double number_of_iterations = 8000) {
+	RRT(Node* start, Node* goal,GSpace &map, double step_size = 0.1, double number_of_iterations = 80000) {
 		this->start = start;
 		this->goal = goal;
 		this->step_size = step_size;
@@ -74,9 +76,15 @@ public:
 	*/
 	Node createRandomNode()
 	{
+        if (randomDouble(0, 1) <= goal_bias)
+        {
+            return *goal;
+        }
+
 		auto d1 = map.getDim(0) , d2 = map.getDim(1);
-		double x = randomDouble(d1.first , d1.second) / 2;
-		double y = randomDouble(d2.first , d2.second) / 2;
+		double x = randomDouble(d1.first , d1.second)/100;
+		double y = randomDouble(d2.first , d2.second)/100;
+		
 		Node rand_node(x, y);
 		return rand_node;
 	}
@@ -106,9 +114,6 @@ public:
 			Node rand_node = createRandomNode();
 			Node* nearest_node = getNearestNode(rand_node);
 			Node nnode = steer(*nearest_node, rand_node);
-			#ifdef DEBUG
-				cout<<"New node @ "<<new_node.getX()<<" , "<<new_node.getY()<<endl;
-			#endif
 			if (map.is_line_clear(*nearest_node , nnode)) //el check beta3ak hena (new_node)
 			{
 				Node* new_node = new Node(nnode.getX() , nnode.getY());

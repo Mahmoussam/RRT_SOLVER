@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <vector>
 
-const double EPS = 1e-6;
+
 /**
  * Geometric 2D vector
 */
