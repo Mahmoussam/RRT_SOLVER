@@ -2,6 +2,7 @@
 #include "csv_utils.cpp"
 #include "graph_utils/graph_types.h"
 #include "graph_utils/graph_building.cpp"
+#include "RRT.cpp"
 using namespace std;
 
 int main(){
@@ -12,7 +13,14 @@ int main(){
     
     build_obstacles(obstacles, obestacles_raw);
     build_nodes(nodes , nodes_raw);
-    GSpace space(obstacles,nodes);
-
+    GSpace space(obstacles);
+    RRT solver(nodes , space);
+    auto res = solver.findPath();
+    cout<<"Nodes : "<<nodes.size()<<endl;
+    cout<<"Path size : "<<res.size()<<endl; 
+    cout<<"Path: ";
+    for(auto n : res){
+        cout<<n.getID()<<",";
+    }cout<<endl;
     return 0;
 }

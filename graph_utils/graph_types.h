@@ -31,23 +31,33 @@ struct GVector{
  * graph (tree) node 
 */
 struct Node {
+    
     int ID;
     double x, y, h;
-    int parent_ID;
+    Node* parent;
+    
+    Node(){}
     Node(double x , double y){
         this->x = x;
         this->y = y;
         this->h = 0;
-        this->parent_ID = -1;
+        this->parent = nullptr;
 
     }
-    Node(int ID , double x , double y ,double h , int parent_ID = -1){
+    Node(int ID , double x , double y ,double h , Node* parent = nullptr){
         this->ID  = ID;
         this->x = x;
         this->y = y;
         this->h = h;
-        this->parent_ID = parent_ID;
+        this->parent = parent;
     }
+    double getX(){return x;}
+    double getY(){return y;}
+    void setParent(Node* parent){
+        this->parent = parent;
+    }
+    Node* getParent(){return parent;}
+    int getID(){return ID;}
 };
 /**
  * a Solid obstacle circle shaped representation class
@@ -66,24 +76,33 @@ private:
     double y;
     double radius;
 };
-
+#include<iostream>
 class GSpace{
 private:
-    
+    std::vector<std::pair<double,double>> dimensions = {{-0.5 , 0.5} , {-0.5 , 0.5}} ;
 
 public:
     std::vector<CircleObstacle> obstacles;//let these as public for now..
-    std::vector<Node>nodes;
+    
+    GSpace(){
 
-    GSpace(std::vector<CircleObstacle> obs , std::vector<Node>nos){
-        obstacles = obs;
-        nodes = nos;
     }
-
+    GSpace(std::vector<CircleObstacle> obs ){
+        obstacles = obs;
+    }
+    /**
+     * returns the size of a dimension..
+    */
+    std::pair<double , double> getDim(int dim_idx){
+        return dimensions[dim_idx];
+    }
+    
     bool is_line_clear(Node n1 , Node n2){
         bool clear = true;
         for(auto obs : obstacles){
             if(obs.intersects(n1,n2)){
+                std::cout<<"Caught : "<<n1.x<<" "<<n1.y<<" "<<n2.x<<" "<<n2.y<<std::endl;
+                std::cout<<"@ obs : "<<obs.getX()<<" "<<obs.getY()<<" "<<obs.getRadius()<<std::endl;
                 clear = false;
                 break;
             }
