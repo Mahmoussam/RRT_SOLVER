@@ -10,9 +10,9 @@ void build_obstacles(std::vector<CircleObstacle> &obstacles , const std::vector<
         obstacles.push_back(CircleObstacle(std::stod(row[0]), std::stod(row[1]), std::stod(row[2])));
     }
 }
-void build_nodes(std::vector<Node> &nodes , const std::vector<std::vector<std::string>> &nodes_raw ) {
+void build_nodes(std::vector<Node*> &nodes , const std::vector<std::vector<std::string>> &nodes_raw ) {
     for(auto row : nodes_raw){
-        nodes.push_back(Node(stoi(row[0]) , stod(row[1]) , stod(row[2]) ,stod(row[3])));
+        nodes.push_back(new Node(stoi(row[0]) , stod(row[1]) , stod(row[2]) ,stod(row[3])));
     }
 }
 

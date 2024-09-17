@@ -1,5 +1,5 @@
 
-#define DEBUG 
+#define PRODUCTION // DEBUG OR PORDUCTION MODES 
 
 #include <iostream>
 #include <vector>
@@ -20,40 +20,43 @@ double randomDouble(double X, double Y) {
     // Uniformly distributed in range [X, Y]
     std::uniform_real_distribution<> dis(X, Y);
     
-    return dis(gen);
+    // Generate random number and round to 2 decimal places
+    double randomValue = dis(gen);
+    return std::round(randomValue * 100.0) / 100.0;
 }
 class RRT {
 private:
-	vector<Node> all_nodes;
-	Node start;
-	Node goal;
+	vector<Node*> all_nodes;
+	Node* start;
+	Node* goal;
 	double step_size;
 	double number_of_iterations;
 	GSpace map;
 public:
-	RRT(vector<Node> &nodes,GSpace &map, double step_size = 0.5, double number_of_iterations = 5000) {
+	RRT(Node* start, Node* goal,GSpace &map, double step_size = 0.1, double number_of_iterations = 8000) {
 		this->start = start;
 		this->goal = goal;
 		this->step_size = step_size;
 		this->number_of_iterations = number_of_iterations;
 		this->map = map;
-		all_nodes = nodes;
-		start = nodes[0];
-		goal = nodes[1];
+		this->start = start;
+		this->goal = goal;
+		all_nodes.push_back(start);
+		
 	}
 
 	
-	Node getNearestNode(Node New_node)
+	Node* getNearestNode(Node New_node)
 	{
 		double min_dist = numeric_limits<double>::max();
-		Node nearest_node = all_nodes[0];
-		for (int i = 0;i < all_nodes.size();i++)
+		Node* nearest_node = (all_nodes)[0];
+		for (int i = 0;i < (all_nodes).size();i++)
 		{
-			double d = dist(New_node , all_nodes[i]);
+			double d = dist(New_node , *(all_nodes)[i]);
 			if (d < min_dist)
 			{
 				min_dist = d;
-				nearest_node = all_nodes[i];
+				nearest_node = (all_nodes)[i];
 			}
 		}
 		return nearest_node;
@@ -72,8 +75,8 @@ public:
 	Node createRandomNode()
 	{
 		auto d1 = map.getDim(0) , d2 = map.getDim(1);
-		double x = randomDouble(d1.first , d1.second);
-		double y = randomDouble(d2.first , d2.second);
+		double x = randomDouble(d1.first , d1.second) / 2;
+		double y = randomDouble(d2.first , d2.second) / 2;
 		Node rand_node(x, y);
 		return rand_node;
 	}
@@ -84,46 +87,64 @@ public:
 		double new_x = nearest_node.getX() + step_size * cos(theta);
 		double new_y = nearest_node.getY() + step_size * sin(theta);
 		Node new_node(new_x, new_y);
-		new_node.setParent(&nearest_node);
 		return new_node;
 	}
 
 	bool isatgoal(Node new_node)
 	{
-		if (dist(new_node, goal) < step_size)
+		if (dist(new_node, *goal) < step_size)
 		{
 			return true;
 		}
 		return false;
 	}
 
-	vector<Node> findPath()
+	vector<Node> findPath( vector<Node*> &nodes)
 	{
 		for (int i = 0;i < number_of_iterations;i++)
 		{
 			Node rand_node = createRandomNode();
-			Node nearest_node = getNearestNode(rand_node);
-			Node new_node = steer(nearest_node, rand_node);
+			Node* nearest_node = getNearestNode(rand_node);
+			Node nnode = steer(*nearest_node, rand_node);
 			#ifdef DEBUG
 				cout<<"New node @ "<<new_node.getX()<<" , "<<new_node.getY()<<endl;
 			#endif
-			if (map.is_line_clear(nearest_node , new_node)) //el check beta3ak hena (new_node)
+			if (map.is_line_clear(*nearest_node , nnode)) //el check beta3ak hena (new_node)
 			{
-				//cout<<"CLEAR PATH, Appending.."<<endl;
-				all_nodes.push_back(new_node);
-				if (isatgoal(new_node))
-				{	//cout<<"GOAL FOUND"<<endl;
+				Node* new_node = new Node(nnode.getX() , nnode.getY());
+
+				new_node->setID(all_nodes.back()->getID() + 1); 
+				new_node->setParent(nearest_node);
+
+				(all_nodes).push_back(new_node);
+				
+				if (isatgoal(*new_node))
+				{	
+					#ifdef DEBUG
+					//cout<<"GOAL FOUND"<<endl;
+					
+					//cout<<"Num of Nodes  "<<all_nodes.size()<<endl;
+					for(auto n : all_nodes){
+						cout<<n->getID()<<" : "<<n->getParent()<<endl;
+					}
+					#endif
+					
 					vector<Node> path;
-					Node* current_node = &new_node;
+					Node* current_node = new_node;
+					
 					while (current_node != nullptr)
 					{
+						//cout<<current_node->getID()<<endl;
 						path.push_back(*current_node);
+						
 						current_node = current_node->getParent();
 					}
-					path.push_back(start);
+					
 					reverse(path.begin(), path.end());
+					nodes = all_nodes;
 					return path;
 				}
+				
 			}
 		}
 		vector<Node> empty;

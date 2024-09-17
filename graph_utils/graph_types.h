@@ -58,6 +58,9 @@ struct Node {
     }
     Node* getParent(){return parent;}
     int getID(){return ID;}
+    void setID(int i){
+        ID = i;
+    }
 };
 /**
  * a Solid obstacle circle shaped representation class
@@ -101,8 +104,8 @@ public:
         bool clear = true;
         for(auto obs : obstacles){
             if(obs.intersects(n1,n2)){
-                std::cout<<"Caught : "<<n1.x<<" "<<n1.y<<" "<<n2.x<<" "<<n2.y<<std::endl;
-                std::cout<<"@ obs : "<<obs.getX()<<" "<<obs.getY()<<" "<<obs.getRadius()<<std::endl;
+                //std::cout<<"Caught : "<<n1.x<<" "<<n1.y<<" "<<n2.x<<" "<<n2.y<<std::endl;
+                //std::cout<<"@ obs : "<<obs.getX()<<" "<<obs.getY()<<" "<<obs.getRadius()<<std::endl;
                 clear = false;
                 break;
             }
