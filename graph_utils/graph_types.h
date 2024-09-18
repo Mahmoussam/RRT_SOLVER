@@ -104,7 +104,7 @@ public:
         return dimensions[dim_idx];
     }
     bool is_node_inside(Node node){
-        return true;
+        
         double x = node.getX() , y = node.getY();
         return x<=dimensions[0].second &&dimensions[0].first <= x && dimensions[1].first <= y && y <= dimensions[1].second;
     }

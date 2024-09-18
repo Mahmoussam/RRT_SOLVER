@@ -37,7 +37,7 @@ int main(){
     
     GSpace space(obstacles);
     //cout<<space.is_line_clear(nodes[0] , Node(-.5,-.4923132))<< " ?"<<endl;;
-    RRT solver(nodes[0], nodes[1] , space , 0.1 , 1e3 , 0.2);
+    RRT solver(nodes[0], nodes[1] , space , 0.2 , 2000 , 0.1);
     auto res = solver.findPath(nodes);
     
     cout<<"Path size : "<<res.size()<<endl; 

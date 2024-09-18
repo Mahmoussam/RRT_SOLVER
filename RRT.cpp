@@ -28,9 +28,10 @@ private:
 	double step_size;
 	double number_of_iterations;
 	double goal_radius;
+	int bias_rate;
 	GSpace map;
 public:
-	RRT(Node* start, Node* goal,GSpace &map, double step_size = 0.3, double number_of_iterations = 5000, double goal_radius = 0.1) {
+	RRT(Node* start, Node* goal,GSpace &map, double step_size = 0.3, double number_of_iterations = 5000, double goal_radius = 0.1, int bias_rate = 10) {
 		this->start = start;
 		this->goal = goal;
 		this->step_size = step_size;
@@ -39,6 +40,7 @@ public:
 		this->start = start;
 		this->goal = goal;
 		this->goal_radius = goal_radius;
+		this->bias_rate = bias_rate;
 		all_nodes.push_back(start);
 		
 	}
@@ -82,14 +84,16 @@ public:
 	Node steer(Node nearest_node, Node rand_node)
 	{
 		//cout<<nearest_node.x << " , "<<nearest_node.y <<" ==> " <<rand_node.x <<" "<<rand_node.y<<endl;
-
+		
 		GVector v(rand_node.getX() - nearest_node.getX() , rand_node.getY() - nearest_node.getY());
-		if(v.get_magnitude() == 0){
+		static int cnt = 0;
+		cnt++;
+		if(v.get_magnitude() == 0 || cnt == bias_rate){
 			v.x = goal->getX() - nearest_node.getX();
 			v.y = goal->getY() - nearest_node.getY();
-			
+			cnt = 0;
 		}
-		double mag = step_size;//min(v.get_magnitude() , step_size);
+		double mag = min(v.get_magnitude() , step_size);
 		v.divide_by(v.get_magnitude());//make it unit vector
 		double rand = 1;//randomDouble(0 , 1);//randomized on d max ..?
 		v.mult(rand * mag);
@@ -125,7 +129,7 @@ public:
 			
 			if (map.is_line_clear(*nearest_node , nnode)) //el check beta3ak hena (new_node)
 			{
-				cout<<"Cool"<<endl;
+				//cout<<"Cool"<<endl;
 				Node* new_node = new Node(nnode.getX() , nnode.getY());
 
 				new_node->setID(all_nodes.back()->getID() + 1); 
